@@ -31,12 +31,16 @@ See [OPEN_TASKS.md](OPEN_TASKS.md) for a list of tasks that still need implement
 ```powershell
 dotnet build                                  # build the solution
 dotnet run --project src/ClaudeUsageTracker   # launch the tray app
+dotnet test                                   # run the unit tests
 dotnet publish src/ClaudeUsageTracker -c Release -r win-x64 --self-contained false
 ```
 
-There is no test project yet; add one as `tests/ClaudeUsageTracker.Tests` and
-register it in the solution when logic warrants coverage (the renderer and any
-real provider are the natural first targets).
+Unit tests live in `tests/ClaudeUsageTracker.Tests` (xUnit) and cover the pure
+logic: `UsageSnapshot`/`UsageLimit`, `TrayIconRenderer.ColorFor`, the OAuth
+parsing helpers, and `OAuthUsageProvider.MapLimits`. Internals are exposed to the
+test assembly via `InternalsVisibleTo` in the app's csproj. Note: `dotnet test`
+rebuilds the app exe, which fails if a tray instance is running and holding the
+file lock — close it first.
 
 ## Layout
 
@@ -55,6 +59,7 @@ src/ClaudeUsageTracker/
   Services/OAuthTokens.cs    # signed-in tokens (access/refresh) persisted to %APPDATA%
   Services/ClaudeOAuthLogin.cs # in-app PKCE browser sign-in + token refresh
   Services/AuthRequiredException.cs # signals the tray to prompt sign-in
+tests/ClaudeUsageTracker.Tests/ # xUnit tests for the pure logic
 ```
 
 ## Conventions

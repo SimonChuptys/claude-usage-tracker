@@ -13,4 +13,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="ClaudeUsageTracker.Tests" />
+  </ItemGroup>
+
 </Project>

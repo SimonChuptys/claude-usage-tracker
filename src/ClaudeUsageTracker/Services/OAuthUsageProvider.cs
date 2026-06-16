@@ -52,6 +52,12 @@ public sealed class OAuthUsageProvider : IUsageProvider
         var usage = await response.Content.ReadFromJsonAsync<OAuthUsageResponse>(cancellationToken)
             ?? throw new InvalidOperationException("Empty usage response");
 
+        return new UsageSnapshot(MapLimits(usage), DateTimeOffset.Now);
+    }
+
+    // Maps the endpoint's utilization (0–100) windows to UsageLimits (UsedFraction 0–1).
+    internal static IReadOnlyList<UsageLimit> MapLimits(OAuthUsageResponse usage)
+    {
         var limits = new List<UsageLimit>(2);
         if (usage.FiveHour is { } session)
         {
@@ -61,15 +67,14 @@ public sealed class OAuthUsageProvider : IUsageProvider
         {
             limits.Add(new UsageLimit("Weekly", weekly.Utilization / 100.0, weekly.ResetsAt));
         }
-
-        return new UsageSnapshot(limits, DateTimeOffset.Now);
+        return limits;
     }
 
-    private sealed record OAuthUsageResponse(
+    internal sealed record OAuthUsageResponse(
         [property: JsonPropertyName("five_hour")] UsageWindow? FiveHour,
         [property: JsonPropertyName("seven_day")] UsageWindow? SevenDay);
 
-    private sealed record UsageWindow(
+    internal sealed record UsageWindow(
         [property: JsonPropertyName("utilization")] double Utilization,
         [property: JsonPropertyName("resets_at")] DateTimeOffset? ResetsAt);
 }

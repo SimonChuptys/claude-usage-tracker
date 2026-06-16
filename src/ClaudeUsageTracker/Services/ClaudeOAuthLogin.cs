@@ -137,7 +137,7 @@ internal static class ClaudeOAuthLogin
         return (code, state);
     }
 
-    private static Dictionary<string, string> ParseQuery(string target)
+    internal static Dictionary<string, string> ParseQuery(string target)
     {
         var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var q = target.IndexOf('?');
@@ -155,6 +155,6 @@ internal static class ClaudeOAuthLogin
         return result;
     }
 
-    private static string Base64Url(byte[] bytes) =>
+    internal static string Base64Url(byte[] bytes) =>
         Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');
 }

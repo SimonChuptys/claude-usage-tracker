@@ -107,7 +107,7 @@ internal static class TrayIconRenderer
         }
     }
 
-    private static Color ColorFor(double used) => used switch
+    internal static Color ColorFor(double used) => used switch
     {
         >= 0.8 => Color.FromArgb(244, 67, 54),   // red
         >= 0.5 => Color.FromArgb(255, 193, 7),   // amber

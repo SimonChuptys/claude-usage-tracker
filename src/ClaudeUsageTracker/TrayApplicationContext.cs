@@ -124,9 +124,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         var lines = snapshot.Limits.Select(l =>
         {
             var resets = l.ResetsAt is { } r ? $" · resets {r.LocalDateTime:t}" : string.Empty;
-            var weeklySpacing = l.Name.StartsWith("Weekly") ? "        " : string.Empty;
-            
-            return $"{l.Name}:   {weeklySpacing}{l.UsedPercent}% used{resets}";
+            return $"{l.Name}: {l.UsedPercent}% used{resets}";
         });
         // NotifyIcon tooltips are plain OS strings with no formatting, so we fake
         // a bold heading using Unicode "mathematical sans-serif bold" letters,

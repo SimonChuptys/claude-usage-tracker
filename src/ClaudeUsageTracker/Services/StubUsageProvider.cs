@@ -5,7 +5,7 @@ namespace ClaudeUsageTracker.Services;
 /// <summary>
 /// Placeholder provider that returns synthetic data so the UI can be developed
 /// and run before a real data source is connected. Replace this with a real
-/// <see cref="IUsageProvider"/> (see CLAUDE.md "Usage data source").
+/// <see cref="IUsageProvider"/> (see OPEN_TASKS.md "Usage data source").
 /// </summary>
 public sealed class StubUsageProvider : IUsageProvider
 {

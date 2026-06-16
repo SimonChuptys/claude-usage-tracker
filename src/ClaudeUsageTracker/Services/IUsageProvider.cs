@@ -10,9 +10,11 @@ namespace ClaudeUsageTracker.Services;
 public interface IUsageProvider
 {
     /// <summary>
-    /// Fetches the latest usage snapshot. Should not throw for transient
-    /// failures; return a best-effort snapshot or surface the error to the
-    /// caller via an exception only for unrecoverable conditions.
+    /// Fetches the latest usage snapshot. Transient failures (e.g. HTTP 429 or
+    /// 5xx) are currently surfaced as exceptions, which the tray shows as the red
+    /// error icon; serving the last good snapshot on transient errors is a
+    /// tracked follow-up (see OPEN_TASKS.md #1). Conditions needing user action
+    /// (no usable token) are surfaced as <see cref="AuthRequiredException"/>.
     /// </summary>
     Task<UsageSnapshot> GetUsageAsync(CancellationToken cancellationToken = default);
 }

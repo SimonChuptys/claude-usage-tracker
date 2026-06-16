@@ -12,9 +12,6 @@ public sealed record UsageLimit(string Name, double UsedFraction, DateTimeOffset
     /// <summary>Fraction of the limit still available, 0.0–1.0.</summary>
     public double RemainingFraction => Math.Clamp(1.0 - UsedFraction, 0.0, 1.0);
 
-    /// <summary>Percentage of the limit still available, 0–100.</summary>
-    public int RemainingPercent => (int)Math.Round(RemainingFraction * 100);
-
     /// <summary>Percentage of the limit consumed, 0–100.</summary>
     public int UsedPercent => (int)Math.Round(Math.Clamp(UsedFraction, 0.0, 1.0) * 100);
 }
