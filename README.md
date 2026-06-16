@@ -1,10 +1,11 @@
 # Claude Usage Tracker
 
 A Windows **system-tray (notification area) widget** that shows how much of your
-Claude subscription usage limits is consumed at a glance. The tray icon is a coloured ring
-whose fill and colour reflect how much of the most-constrained limit is used
-(green when little is used, red when nearly exhausted); hovering shows a tooltip
-with each tracked limit and its reset time.
+Claude subscription usage limits is consumed at a glance. The tray icon shows the usage percentage above a
+horizontal progress bar that fills as usage grows; its fill and colour reflect
+how much of the most-constrained limit is used (green when little is used, red
+when nearly exhausted). Hovering shows a tooltip with each tracked limit and its
+reset time.
 
 ## Requirements
 

@@ -41,7 +41,16 @@ tooltip). Map each limit to one `UsageLimit` with a `UsedFraction` in 0.0–1.0 
 a `ResetsAt` when known. **Never commit credentials** — local config files are
 git-ignored (`*.secrets.json`, `.env`, `appsettings.*.local.json`).
 
-## 2. UI design
+## 2. UI design — DONE
 
-The current circular icon is placeholder. The final UI should be a usage percent along with progress bar filled according to the usage percentage.
-The bar should be color coded (green-yellow-red) according to usage remaining.
+The icon shows the **full percentage** (e.g. "83", "100") above a **full-width
+horizontal progress bar** that fills left-to-right as usage grows:
+
+- Rendered at a larger native size (32px) so it stays crisp when Windows scales
+  it for high-DPI taskbars (a fixed 16px bitmap would upscale blurry).
+- The bar's fill is proportional to the used fraction and colour-coded
+  green → amber → red as usage grows (`TrayIconRenderer.ColorFor`); the
+  percentage is drawn in white above the bar.
+
+The icon reflects the most-constrained limit; the hover tooltip continues to list
+all tracked limits. See `TrayIconRenderer.cs`.

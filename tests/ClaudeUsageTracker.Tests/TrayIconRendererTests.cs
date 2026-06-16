@@ -32,4 +32,16 @@ public class TrayIconRendererTests
     {
         Assert.Equal(Red, TrayIconRenderer.ColorFor(used));
     }
+
+    [Theory]
+    [InlineData(0.0, "0")]
+    [InlineData(0.07, "7")]
+    [InlineData(0.83, "83")]
+    [InlineData(1.0, "100")]
+    [InlineData(-0.1, "0")]
+    [InlineData(1.5, "100")]
+    public void FormatPercentLabel_shows_clamped_whole_percent(double used, string expected)
+    {
+        Assert.Equal(expected, TrayIconRenderer.FormatPercentLabel(used));
+    }
 }
