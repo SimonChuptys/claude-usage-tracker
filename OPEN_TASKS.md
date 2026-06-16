@@ -43,14 +43,19 @@ git-ignored (`*.secrets.json`, `.env`, `appsettings.*.local.json`).
 
 ## 2. UI design — DONE
 
-The icon shows the **full percentage** (e.g. "83", "100") above a **full-width
-horizontal progress bar** that fills left-to-right as usage grows:
+The icon shows the most-constrained **percentage** (e.g. "83", "100") above
+**two stacked horizontal progress bars** — the session (5h) limit on top and the
+weekly limit below — that fill left-to-right as usage grows:
 
 - Rendered at a larger native size (32px) so it stays crisp when Windows scales
   it for high-DPI taskbars (a fixed 16px bitmap would upscale blurry).
-- The bar's fill is proportional to the used fraction and colour-coded
-  green → amber → red as usage grows (`TrayIconRenderer.ColorFor`); the
-  percentage is drawn in white above the bar.
+- Each bar's fill is proportional to that limit's used fraction and colour-coded
+  green → amber → red (`TrayIconRenderer.ColorFor`); the headline percentage is
+  drawn in white above the bars and reflects the worst (most-constrained) limit.
 
-The icon reflects the most-constrained limit; the hover tooltip continues to list
-all tracked limits. See `TrayIconRenderer.cs`.
+The hover tooltip continues to list all tracked limits. See `TrayIconRenderer.cs`.
+
+
+## 3. Popups with warning when usage thresholds are reached.
+- [ ] Display popups when the session limit thresholds are reached (every 25 percent usage).
+- [ ] Display popups when the weekly limit is reached (every 25 percent usage).

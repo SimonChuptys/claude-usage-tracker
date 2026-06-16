@@ -61,11 +61,11 @@ public sealed class OAuthUsageProvider : IUsageProvider
         var limits = new List<UsageLimit>(2);
         if (usage.FiveHour is { } session)
         {
-            limits.Add(new UsageLimit("Session (5h)", session.Utilization / 100.0, session.ResetsAt));
+            limits.Add(new UsageLimit(UsageLimitKind.Session, "Session (5h)", session.Utilization / 100.0, session.ResetsAt));
         }
         if (usage.SevenDay is { } weekly)
         {
-            limits.Add(new UsageLimit("Weekly", weekly.Utilization / 100.0, weekly.ResetsAt));
+            limits.Add(new UsageLimit(UsageLimitKind.Weekly, "Weekly", weekly.Utilization / 100.0, weekly.ResetsAt));
         }
         return limits;
     }

@@ -13,7 +13,7 @@ public class UsageSnapshotTests
     [InlineData(-0.5, 0)]     // clamped below 0.0
     public void UsedPercent_clamps_and_rounds(double fraction, int expected)
     {
-        Assert.Equal(expected, new UsageLimit("x", fraction, null).UsedPercent);
+        Assert.Equal(expected, new UsageLimit(UsageLimitKind.Session, "x", fraction, null).UsedPercent);
     }
 
     [Theory]
@@ -22,7 +22,7 @@ public class UsageSnapshotTests
     [InlineData(1.5, 0.0)]     // clamped
     public void RemainingFraction_is_one_minus_used_clamped(double used, double expected)
     {
-        Assert.Equal(expected, new UsageLimit("x", used, null).RemainingFraction, 3);
+        Assert.Equal(expected, new UsageLimit(UsageLimitKind.Session, "x", used, null).RemainingFraction, 3);
     }
 
     [Fact]
@@ -35,10 +35,20 @@ public class UsageSnapshotTests
     [Fact]
     public void MostConstrained_picks_lowest_remaining()
     {
-        var session = new UsageLimit("Session (5h)", 0.30, null);
-        var weekly = new UsageLimit("Weekly", 0.80, null);
+        var session = new UsageLimit(UsageLimitKind.Session, "Session (5h)", 0.30, null);
+        var weekly = new UsageLimit(UsageLimitKind.Weekly, "Weekly", 0.80, null);
         var snapshot = new UsageSnapshot(new[] { session, weekly }, DateTimeOffset.Now);
 
         Assert.Same(weekly, snapshot.MostConstrained);
+    }
+
+    [Fact]
+    public void Limit_finds_by_kind_and_returns_null_when_absent()
+    {
+        var session = new UsageLimit(UsageLimitKind.Session, "Session (5h)", 0.30, null);
+        var snapshot = new UsageSnapshot(new[] { session }, DateTimeOffset.Now);
+
+        Assert.Same(session, snapshot.Limit(UsageLimitKind.Session));
+        Assert.Null(snapshot.Limit(UsageLimitKind.Weekly));
     }
 }

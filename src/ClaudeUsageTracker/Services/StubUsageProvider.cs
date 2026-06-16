@@ -19,8 +19,8 @@ public sealed class StubUsageProvider : IUsageProvider
 
         var limits = new List<UsageLimit>
         {
-            new("Session (5h)", sessionUsed, DateTimeOffset.Now.AddHours(5)),
-            new("Weekly", 0.42, DateTimeOffset.Now.AddDays(3)),
+            new(UsageLimitKind.Session, "Session (5h)", sessionUsed, DateTimeOffset.Now.AddHours(5)),
+            new(UsageLimitKind.Weekly, "Weekly", 0.42, DateTimeOffset.Now.AddDays(3)),
         };
 
         return Task.FromResult(new UsageSnapshot(limits, DateTimeOffset.Now));

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ClaudeUsageTracker.Models;
 using ClaudeUsageTracker.Services;
 using Xunit;
 
@@ -24,12 +25,14 @@ public class OAuthUsageProviderTests
         Assert.Collection(limits,
             l =>
             {
+                Assert.Equal(UsageLimitKind.Session, l.Kind);
                 Assert.Equal("Session (5h)", l.Name);
                 Assert.Equal(0.25, l.UsedFraction, 3);
                 Assert.Equal(new DateTimeOffset(2026, 6, 16, 18, 0, 0, TimeSpan.Zero), l.ResetsAt);
             },
             l =>
             {
+                Assert.Equal(UsageLimitKind.Weekly, l.Kind);
                 Assert.Equal("Weekly", l.Name);
                 Assert.Equal(0.80, l.UsedFraction, 3);
             });

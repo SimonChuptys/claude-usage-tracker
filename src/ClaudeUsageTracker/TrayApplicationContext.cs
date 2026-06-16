@@ -115,10 +115,10 @@ internal sealed class TrayApplicationContext : ApplicationContext
     {
         _authBalloonShown = false;
 
-        var constrained = snapshot.MostConstrained;
-        var used = constrained?.UsedFraction ?? 0.0;
+        var session = snapshot.Limit(UsageLimitKind.Session);
+        var weekly = snapshot.Limit(UsageLimitKind.Weekly);
 
-        SetIcon(TrayIconRenderer.Render(used));
+        SetIcon(TrayIconRenderer.Render(session?.UsedFraction ?? 0.0, weekly?.UsedFraction ?? 0.0));
 
         // NotifyIcon.Text is limited to 127 characters.
         var lines = snapshot.Limits.Select(l =>
