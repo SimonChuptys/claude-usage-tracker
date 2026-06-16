@@ -14,7 +14,7 @@ internal static class TrayIconRenderer
 {
     // Render larger than the 16px logical tray size so the icon stays crisp when
     // Windows scales it up for high-DPI taskbars.
-    private const int Size = 32;
+    private const int Size = 64;
 
     /// <summary>
     /// Renders an icon for the given session and weekly used fractions (each
@@ -36,16 +36,16 @@ internal static class TrayIconRenderer
             // Two stacked progress bars along the bottom: session (upper) and
             // weekly (lower). A bit thinner than a single bar so both fit.
             var barHeight = Size * 0.15f; // ~4.8px at 32px
-            var barGap = Size / 16f;      // 1px (logical) between the two bars
+            var barGap = Size / 16f * 0.5f;      // 0.5px (logical) between the two bars
             var weeklyTop = Size - barHeight;
             var sessionTop = weeklyTop - barGap - barHeight;
             DrawBar(g, sessionTop, barHeight, sessionFraction);
             DrawBar(g, weeklyTop, barHeight, weeklyFraction);
 
             // Headline percentage = the most-constrained (worst) of the two,
-            // filling the area above the bars with a 2px (logical) gap.
+            // filling the area above the bars with a 1.5px (logical) gap.
             var headline = Math.Max(sessionFraction, weeklyFraction);
-            var gap = Size / 16f * 2f;
+            var gap = Size / 16f * 1.5f;
             var textAreaHeight = sessionTop - gap;
             DrawPercentLabel(g, headline, textAreaHeight);
         }
