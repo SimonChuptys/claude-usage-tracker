@@ -13,9 +13,9 @@ internal static class Program
     {
         ApplicationConfiguration.Initialize();
 
-        // Swap StubUsageProvider for a real implementation once the data
-        // source is wired up (see CLAUDE.md "Usage data source").
-        IUsageProvider usageProvider = new StubUsageProvider();
+        // Real provider: reads Claude Code's subscription usage via its OAuth
+        // login. Use StubUsageProvider instead for offline UI development.
+        IUsageProvider usageProvider = new OAuthUsageProvider();
 
         using var context = new TrayApplicationContext(usageProvider);
         Application.Run(context);

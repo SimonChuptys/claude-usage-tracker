@@ -64,6 +64,49 @@ internal static class TrayIconRenderer
         }
     }
 
+    /// <summary>
+    /// Renders a red error icon (filled disc with a white "!") shown when a
+    /// refresh fails. The caller owns the returned <see cref="Icon"/> and must
+    /// dispose it.
+    /// </summary>
+    public static Icon RenderError()
+    {
+        var red = Color.FromArgb(244, 67, 54);
+
+        using var bitmap = new Bitmap(Size, Size);
+        using (var g = Graphics.FromImage(bitmap))
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+            g.Clear(Color.Transparent);
+
+            var rect = new Rectangle(1, 1, Size - 3, Size - 3);
+            using (var fill = new SolidBrush(red))
+            {
+                g.FillEllipse(fill, rect);
+            }
+
+            using var font = new Font("Segoe UI", 8f, FontStyle.Bold, GraphicsUnit.Point);
+            using var brush = new SolidBrush(Color.White);
+            var textSize = g.MeasureString("!", font);
+            g.DrawString("!", font, brush,
+                (Size - textSize.Width) / 2f,
+                (Size - textSize.Height) / 2f);
+        }
+
+        // Icon.FromHandle does not own the handle; destroy it to avoid a leak.
+        var hIcon = bitmap.GetHicon();
+        try
+        {
+            using var temp = Icon.FromHandle(hIcon);
+            return (Icon)temp.Clone();
+        }
+        finally
+        {
+            NativeMethods.DestroyIcon(hIcon);
+        }
+    }
+
     private static Color ColorFor(double remaining) => remaining switch
     {
         >= 0.5 => Color.FromArgb(76, 175, 80),   // green

@@ -50,6 +50,11 @@ src/ClaudeUsageTracker/
   Models/UsageSnapshot.cs    # UsageLimit + UsageSnapshot records
   Services/IUsageProvider.cs # abstraction over the usage data source
   Services/StubUsageProvider.cs # synthetic data so the UI runs without a backend
+  Services/ClaudeCredentials.cs # resolves a valid token (signed-in / file / env / ~/.claude)
+  Services/OAuthUsageProvider.cs # real provider: Claude Code /api/oauth/usage endpoint
+  Services/OAuthTokens.cs    # signed-in tokens (access/refresh) persisted to %APPDATA%
+  Services/ClaudeOAuthLogin.cs # in-app PKCE browser sign-in + token refresh
+  Services/AuthRequiredException.cs # signals the tray to prompt sign-in
 ```
 
 ## Conventions

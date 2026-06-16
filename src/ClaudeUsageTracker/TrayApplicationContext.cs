@@ -10,18 +10,23 @@ namespace ClaudeUsageTracker;
 /// </summary>
 internal sealed class TrayApplicationContext : ApplicationContext
 {
-    private static readonly TimeSpan RefreshInterval = TimeSpan.FromMinutes(1);
+    // The usage endpoint rate-limits aggressively (safe at ~180s); poll every
+    // 5 minutes to stay well clear.
+    private static readonly TimeSpan RefreshInterval = TimeSpan.FromMinutes(5);
 
     private readonly IUsageProvider _usageProvider;
     private readonly NotifyIcon _notifyIcon;
     private readonly System.Windows.Forms.Timer _refreshTimer;
     private Icon? _currentIcon;
+    private bool _signingIn;
+    private bool _authBalloonShown;
 
     public TrayApplicationContext(IUsageProvider usageProvider)
     {
         _usageProvider = usageProvider;
 
         var menu = new ContextMenuStrip();
+        menu.Items.Add("Sign in to Claude…", null, async (_, _) => await SignInAsync());
         menu.Items.Add("Refresh now", null, async (_, _) => await RefreshAsync());
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Exit", null, (_, _) => ExitApplication());
@@ -33,6 +38,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
             Icon = SystemIcons.Application,
             ContextMenuStrip = menu,
         };
+        // The error balloon is the "action button": clicking it starts sign-in.
+        _notifyIcon.BalloonTipClicked += async (_, _) => await SignInAsync();
 
         _refreshTimer = new System.Windows.Forms.Timer { Interval = (int)RefreshInterval.TotalMilliseconds };
         _refreshTimer.Tick += async (_, _) => await RefreshAsync();
@@ -49,21 +56,69 @@ internal sealed class TrayApplicationContext : ApplicationContext
             var snapshot = await _usageProvider.GetUsageAsync();
             UpdateUi(snapshot);
         }
+        catch (AuthRequiredException ex)
+        {
+            SetIcon(TrayIconRenderer.RenderError());
+            _notifyIcon.Text = Truncate($"Claude usage — {ex.Message}");
+            // Prompt to sign in via a clickable balloon, once per auth-required
+            // spell (reset after the next successful refresh) to avoid nagging.
+            if (!_authBalloonShown)
+            {
+                _authBalloonShown = true;
+                _notifyIcon.ShowBalloonTip(
+                    10_000, "Claude Usage Tracker",
+                    $"{ex.Message} — click here to sign in.", ToolTipIcon.Warning);
+            }
+        }
         catch (Exception ex)
         {
+            SetIcon(TrayIconRenderer.RenderError());
             _notifyIcon.Text = Truncate($"Claude usage — error: {ex.Message}");
+        }
+    }
+
+    // Runs the interactive OAuth sign-in (opens a browser), saves the tokens, and
+    // refreshes. Guarded against re-entrancy so double-clicks don't open two flows.
+    private async Task SignInAsync()
+    {
+        if (_signingIn)
+        {
+            return;
+        }
+        _signingIn = true;
+        try
+        {
+            // The Claude login page shows "Claude Code" (we reuse its OAuth
+            // client to read usage) — flag that so it isn't a surprise.
+            _notifyIcon.ShowBalloonTip(
+                10_000, "Claude Usage Tracker",
+                "Opening your browser to sign in to Claude. The page will show " +
+                "\"Claude Code\" — that's expected; the tracker reuses Claude " +
+                "Code's login to read your usage.", ToolTipIcon.Info);
+
+            var tokens = await ClaudeOAuthLogin.LoginAsync();
+            tokens.Save();
+            await RefreshAsync();
+        }
+        catch (Exception ex)
+        {
+            SetIcon(TrayIconRenderer.RenderError());
+            _notifyIcon.Text = Truncate($"Claude usage — sign-in failed: {ex.Message}");
+        }
+        finally
+        {
+            _signingIn = false;
         }
     }
 
     private void UpdateUi(UsageSnapshot snapshot)
     {
+        _authBalloonShown = false;
+
         var constrained = snapshot.MostConstrained;
         var remaining = constrained?.RemainingFraction ?? 1.0;
 
-        var newIcon = TrayIconRenderer.Render(remaining);
-        _notifyIcon.Icon = newIcon;
-        _currentIcon?.Dispose();
-        _currentIcon = newIcon;
+        SetIcon(TrayIconRenderer.Render(remaining));
 
         // NotifyIcon.Text is limited to 127 characters.
         var lines = snapshot.Limits.Select(l =>
@@ -72,6 +127,15 @@ internal sealed class TrayApplicationContext : ApplicationContext
             return $"{l.Name}: {l.RemainingPercent}% left{resets}";
         });
         _notifyIcon.Text = Truncate("Claude usage\n" + string.Join("\n", lines));
+    }
+
+    // Swaps in a freshly rendered icon and disposes the previous one to avoid
+    // leaking GDI icon handles.
+    private void SetIcon(Icon newIcon)
+    {
+        _notifyIcon.Icon = newIcon;
+        _currentIcon?.Dispose();
+        _currentIcon = newIcon;
     }
 
     private static string Truncate(string text) =>
