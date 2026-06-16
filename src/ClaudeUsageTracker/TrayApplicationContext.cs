@@ -116,17 +116,22 @@ internal sealed class TrayApplicationContext : ApplicationContext
         _authBalloonShown = false;
 
         var constrained = snapshot.MostConstrained;
-        var remaining = constrained?.RemainingFraction ?? 1.0;
+        var used = constrained?.UsedFraction ?? 0.0;
 
-        SetIcon(TrayIconRenderer.Render(remaining));
+        SetIcon(TrayIconRenderer.Render(used));
 
         // NotifyIcon.Text is limited to 127 characters.
         var lines = snapshot.Limits.Select(l =>
         {
             var resets = l.ResetsAt is { } r ? $" · resets {r.LocalDateTime:t}" : string.Empty;
-            return $"{l.Name}: {l.RemainingPercent}% left{resets}";
+            var weeklySpacing = l.Name.StartsWith("Weekly") ? "        " : string.Empty;
+            
+            return $"{l.Name}:   {weeklySpacing}{l.UsedPercent}% used{resets}";
         });
-        _notifyIcon.Text = Truncate("Claude usage\n" + string.Join("\n", lines));
+        // NotifyIcon tooltips are plain OS strings with no formatting, so we fake
+        // a bold heading using Unicode "mathematical sans-serif bold" letters,
+        // which Segoe UI renders bold.
+        _notifyIcon.Text = Truncate("𝗖𝗹𝗮𝘂𝗱𝗲 𝘂𝘀𝗮𝗴𝗲\n" + string.Join("\n", lines));
     }
 
     // Swaps in a freshly rendered icon and disposes the previous one to avoid
