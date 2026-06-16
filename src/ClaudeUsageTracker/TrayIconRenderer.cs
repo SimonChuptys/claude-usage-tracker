@@ -168,8 +168,8 @@ internal static class TrayIconRenderer
 
     internal static Color ColorFor(double used) => used switch
     {
-        >= 0.8 => Color.FromArgb(244, 67, 54),   // red
+        >= 0.8 => Color.FromArgb(208, 59, 59),   // red
         >= 0.5 => Color.FromArgb(255, 193, 7),   // amber
-        _ => Color.FromArgb(76, 175, 80),         // green
+        _ => Color.FromArgb(42, 120, 214),       // blue
     };
 }
