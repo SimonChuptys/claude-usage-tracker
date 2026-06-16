@@ -123,7 +123,19 @@ internal sealed class TrayApplicationContext : ApplicationContext
         // NotifyIcon.Text is limited to 127 characters.
         var lines = snapshot.Limits.Select(l =>
         {
-            var resets = l.ResetsAt is { } r ? $" · resets {r.LocalDateTime:t}" : string.Empty;
+            string resets;
+            if (l.ResetsAt is { } r)
+            {
+                // Weekly resets span days, so show the weekday (Mon/Tue/…) before
+                // the time; the session resets within hours so the time suffices.
+                resets = l.Kind == UsageLimitKind.Weekly
+                    ? $" · resets {r.LocalDateTime:ddd} {r.LocalDateTime:t}"
+                    : $" · resets {r.LocalDateTime:t}";
+            }
+            else
+            {
+                resets = string.Empty;
+            }
             return $"{l.Name}: {l.UsedPercent}% used{resets}";
         });
         // NotifyIcon tooltips are plain OS strings with no formatting, so we fake
