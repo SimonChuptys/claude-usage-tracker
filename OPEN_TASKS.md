@@ -43,7 +43,7 @@ git-ignored (`*.secrets.json`, `.env`, `appsettings.*.local.json`).
 
 ## 2. UI design — DONE
 
-The icon shows the most-constrained **percentage** (e.g. "83", "100") above
+The icon shows the session (5h) **percentage** (e.g. "83", "100") above
 **two stacked horizontal progress bars** — the session (5h) limit on top and the
 weekly limit below — that fill left-to-right as usage grows:
 
@@ -51,7 +51,7 @@ weekly limit below — that fill left-to-right as usage grows:
   it for high-DPI taskbars (a fixed 16px bitmap would upscale blurry).
 - Each bar's fill is proportional to that limit's used fraction and colour-coded
   green → amber → red (`TrayIconRenderer.ColorFor`); the headline percentage is
-  drawn in white above the bars and reflects the worst (most-constrained) limit.
+  drawn in white above the bars and reflects the session (5h) limit.
 
 The hover tooltip continues to list all tracked limits. See `TrayIconRenderer.cs`.
 

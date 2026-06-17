@@ -6,7 +6,7 @@ namespace ClaudeUsageTracker;
 /// <summary>
 /// Draws a tray icon showing two stacked horizontal progress bars — the session
 /// (5h) limit on top and the weekly limit below — that fill as usage grows, with
-/// the most-constrained percentage above them. Each bar's colour shifts from
+/// the session (5h) usage percentage above them. Each bar's colour shifts from
 /// green (little used) to red (nearly exhausted). Rendered at a larger-than-
 /// display size so it stays crisp when Windows scales it for high-DPI taskbars.
 /// </summary>
@@ -42,9 +42,9 @@ internal static class TrayIconRenderer
             DrawBar(g, sessionTop, barHeight, sessionFraction);
             DrawBar(g, weeklyTop, barHeight, weeklyFraction);
 
-            // Headline percentage = the most-constrained (worst) of the two,
-            // filling the area above the bars with a 1.5px (logical) gap.
-            var headline = Math.Max(sessionFraction, weeklyFraction);
+            // Headline percentage = the session (5h) usage, filling the area
+            // above the bars with a 1.5px (logical) gap.
+            var headline = sessionFraction;
             var gap = Size / 16f * 1.5f;
             var textAreaHeight = sessionTop - gap;
             DrawPercentLabel(g, headline, textAreaHeight);
