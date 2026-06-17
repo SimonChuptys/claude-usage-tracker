@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ClaudeUsageTracker</RootNamespace>
     <AssemblyName>ClaudeUsageTracker</AssemblyName>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <!-- Required by the source-generated LibraryImport in NativeMethods.cs. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
