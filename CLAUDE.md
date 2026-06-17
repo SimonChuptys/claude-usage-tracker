@@ -60,7 +60,17 @@ src/ClaudeUsageTracker/
   Services/ClaudeOAuthLogin.cs # in-app PKCE browser sign-in + token refresh
   Services/AuthRequiredException.cs # signals the tray to prompt sign-in
 tests/ClaudeUsageTracker.Tests/ # xUnit tests for the pure logic
+.github/workflows/release.yml # CI release pipeline (push to `release` branch)
 ```
+
+## Releases
+
+`.github/workflows/release.yml` runs on every push to the `release` branch: it
+runs the tests, reads `<Version>` from the app csproj, and — if no `v{version}`
+git tag exists yet — publishes a self-contained single-file `win-x64` exe,
+creates a GitHub Release with the exe attached, and tags the commit. The
+csproj `<Version>` is the single source of truth; bump it to cut a release. See
+the **Releasing** section in [README.md](README.md).
 
 ## Conventions
 

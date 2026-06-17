@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    branches: [release]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Test
+        run: dotnet test -c Release --no-restore
+
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$csproj = Get-Content src/ClaudeUsageTracker/ClaudeUsageTracker.csproj
+          $version = $csproj.Project.PropertyGroup.Version
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version"   >> $env:GITHUB_OUTPUT
+          Write-Host "Detected version: $version"
+
+      - name: Check whether tag already exists
+        id: check
+        shell: pwsh
+        run: |
+          $tag = "${{ steps.version.outputs.tag }}"
+          $exists = git tag -l $tag
+          if ($exists) {
+            Write-Host "Tag $tag already exists - skipping release."
+            "should_release=false" >> $env:GITHUB_OUTPUT
+          } else {
+            Write-Host "Tag $tag is new - will release."
+            "should_release=true" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Publish single-file exe
+        if: steps.check.outputs.should_release == 'true'
+        id: publish
+        shell: pwsh
+        run: |
+          dotnet publish src/ClaudeUsageTracker -c Release -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true
+          $out = "src/ClaudeUsageTracker/bin/Release/net8.0-windows/win-x64/publish/ClaudeUsageTracker.exe"
+          $named = "ClaudeUsageTracker-${{ steps.version.outputs.tag }}-win-x64.exe"
+          Copy-Item $out $named
+          "asset=$named" >> $env:GITHUB_OUTPUT
+
+      - name: Create GitHub release
+        if: steps.check.outputs.should_release == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" `
+            "${{ steps.publish.outputs.asset }}" `
+            --title "${{ steps.version.outputs.tag }}" `
+            --target "${{ github.sha }}" `
+            --generate-notes

@@ -33,3 +33,27 @@ dotnet run --project src/ClaudeUsageTracker
 
 The app starts with no window — look for the ring icon in the notification area
 (bottom-right of the taskbar). Right-click it for **Refresh now** and **Exit**.
+
+## Download
+
+Prebuilt, self-contained Windows executables are published on the repo's
+[Releases page](https://github.com/SimonChuptys/claude-usage-tracker/releases).
+Download the latest `ClaudeUsageTracker-v*-win-x64.exe` and run it — no .NET
+install required. (Windows SmartScreen may warn on first run since the build is
+unsigned; choose **More info → Run anyway**.)
+
+## Releasing
+
+Releases are automated by the [`Release` workflow](.github/workflows/release.yml),
+which runs on every push to the **`release`** branch:
+
+1. Bump `<Version>` in
+   [`src/ClaudeUsageTracker/ClaudeUsageTracker.csproj`](src/ClaudeUsageTracker/ClaudeUsageTracker.csproj)
+   (e.g. `0.1.0` → `0.2.0`).
+2. Commit and push the change to the `release` branch.
+3. The workflow runs the tests, and if the version's tag (`v{version}`) does not
+   already exist, builds the single-file exe, creates a GitHub Release with the
+   exe attached, and tags the commit.
+
+Pushing to `release` without bumping the version is a no-op — the existing tag
+makes the run skip the build/publish steps, so no duplicate release is created.
