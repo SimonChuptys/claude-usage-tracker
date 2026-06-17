@@ -5,16 +5,16 @@ namespace ClaudeUsageTracker.Tests;
 
 public class TrayIconRendererTests
 {
-    private static readonly Color Green = Color.FromArgb(76, 175, 80);
+    private static readonly Color Blue = Color.FromArgb(42, 120, 214);
     private static readonly Color Amber = Color.FromArgb(255, 193, 7);
-    private static readonly Color Red = Color.FromArgb(244, 67, 54);
+    private static readonly Color Red = Color.FromArgb(208, 59, 59);
 
     [Theory]
     [InlineData(0.0)]
     [InlineData(0.49)]
-    public void ColorFor_is_green_below_half(double used)
+    public void ColorFor_is_blue_below_half(double used)
     {
-        Assert.Equal(Green, TrayIconRenderer.ColorFor(used));
+        Assert.Equal(Blue, TrayIconRenderer.ColorFor(used));
     }
 
     [Theory]
